@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, insert, update
+from sqlalchemy import create_engine, insert, update, delete
 from sqlalchemy import MetaData, Table, String, Integer, Column, Text, DateTime, Boolean
 from sqlalchemy.orm import Session, sessionmaker
 from Telnet import Alarm
@@ -8,6 +8,11 @@ class AlarmDatabase:
     def __init__(self):
         self.engine = create_engine('sqlite:///sqlite4.db')
         self.create_alarm_table()
+        self.clear_alarm_table()
+
+    def clear_alarm_table(self):
+        conn = self.engine.connect()
+        conn.execute(delete(self.alarms))
 
     def create_alarm_table(self):
         metadata = MetaData()
