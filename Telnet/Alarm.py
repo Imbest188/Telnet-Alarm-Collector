@@ -24,7 +24,10 @@ class Alarm:
         time_line, date_line = info_line[-1], info_line[-2]
         if len(time_line) == 4:
             time_line = time_line + '00'
-        self.raising_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
+        if self.id == 0:
+            self.ceasing_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
+        else:
+            self.raising_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
         self.descr = header_parts[-1]
 
     def __dict__(self):
@@ -37,9 +40,6 @@ class Alarm:
             'slogan': self.slogan,
             'descr': self.descr
         }
-
-    def toDict(self):
-        return self.__dict__()
 
     @staticmethod
     def __get_values(header='', value_line='') -> dict:
@@ -109,10 +109,7 @@ class Alarm:
         self.text = ''
         self.id = 0
         self.is_active = True
-        #try:
         self.__parse_content(alarm_text)
-        #except:
-        #    print(alarm_text)
 
     def __str__(self):
         return f'type:{self.type} dt:{self.raising_time} mo:{self.managed_object} name:{self.object_name}' \
