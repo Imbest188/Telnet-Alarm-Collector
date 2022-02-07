@@ -14,7 +14,7 @@ def print_alarm(alarm):
 
 if __name__ == '__main__':
 
-    db = DB.AlarmDatabase()
+    #db = DB.AlarmDatabase()
 
     #telnet = EricssonBsc('10.140.3.7', 'ts_user', 'apg43l2@')
     #for item in AlarmParser.parse_node_output(telnet.get('allip;')):
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
 
 
-
+    '''
     t = EricssonBsc('172.25.157.99', 'administrator', 'Administrator1@')
     inst_alarms = t.read_alarms()
     db.insert_new_alarms(inst_alarms)
@@ -43,11 +43,13 @@ if __name__ == '__main__':
                 db.insert_new_alarms(new_alarms)
             if len(ceased):
                 db.update_ceased_alarms(ceased)
+    '''
+    a = AlarmCollector()
+    a.add_node('10.140.3.7', 'ts_user', 'apg43l2@', 'BSC04', 'bsc')
+    a.add_node('172.25.157.99', 'administrator', 'Administrator1@', 'BSC03', 'bsc')
+    a.add_node('10.140.27.68', 'ts_user', 'apg43l1@', 'BSC05', 'bsc')
 
-    #a = AlarmCollector()
-    #a.add_node('10.140.3.7', 'ts_user', 'apg43l2@', 'BSC04', 'bsc')
-    #a.add_node('172.25.157.99', 'administrator', 'Administrator1@', 'BSC03', 'bsc')
-    #a.add_node('10.140.27.68', 'ts_user', 'apg43l1@', 'BSC05', 'bsc')
+    a.listening()
 
 
 
