@@ -26,7 +26,7 @@ class AlarmCollector:
             time.sleep(5)
             if not self.__busy:
                 for name in self.__nodes.keys():
-                    new_alarms = self.__nodes[name].get_alarms()
+                    new_alarms = self.__nodes[name].get_new_alarms()
                     self.__alarms[name] += new_alarms
 
     def __init_alarm_dict(self) -> dict:
