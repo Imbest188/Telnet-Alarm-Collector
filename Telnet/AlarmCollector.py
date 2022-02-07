@@ -1,3 +1,5 @@
+import time
+
 from Telnet.EricssonNode import EricssonBsc, EricssonNode
 from Databases.DB import AlarmDatabase
 from threading import Thread
@@ -11,6 +13,7 @@ class AlarmCollector:
         self.__alarms = dict()
         self.__init_connections()
         self.__start_listening()
+        self.__busy = False
 
     def get_nodes(self) -> list:
         return list(self.__nodes.keys())
@@ -20,13 +23,24 @@ class AlarmCollector:
 
     def __listening(self):
         while True:
-            for name in self.__nodes.keys():
-                new_alarms = self.__nodes[name].get_alarms()
+            time.sleep(5)
+            if not self.__busy:
+                for name in self.__nodes.keys():
+                    new_alarms = self.__nodes[name].get_alarms()
+                    self.__alarms[name] += new_alarms
+
+    def __init_alarm_dict(self) -> dict:
+        new_dict = dict()
+        for name in self.__nodes.keys():
+            new_dict[name] = []
+        return new_dict
 
     def get_changes(self):
-        for node_name in self.__nodes.keys():
-            pass
-            #################self.__nodes[key].
+        self.__busy = True
+        result = self.__alarms
+        self.__alarms = self.__init_alarm_dict()
+        self.__busy = False
+        return result
 
     # may be async
     def add_node(self, host, login, password, name, node_type, override=True):
