@@ -8,8 +8,6 @@ class AlarmDatabase:
     def __init__(self):
         self.engine = create_engine('sqlite:///sqlite4.db')
         self.create_alarm_table()
-        # engine.connect()
-        # sessionmaker(bind=engine)
 
     def create_alarm_table(self):
         metadata = MetaData()
