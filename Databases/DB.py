@@ -14,7 +14,8 @@ class AlarmDatabase:
         self.alarms = Table('alarms', metadata,
                             Column('id', Integer(), nullable=False),
                             Column('type', String(7), nullable=False),
-                            Column('date_time', String(15), nullable=False),
+                            Column('raising_time', String(15), nullable=False),
+                            Column('ceasing_time', String(15), nullable=True),
                             Column('managed_object', String(30)),
                             Column('object_name', String(30)),
                             Column('slogan', String(30)),
@@ -24,31 +25,31 @@ class AlarmDatabase:
                             )
         print(metadata.create_all(self.engine))
 
-    def insert_new_alarms(self, alarm_object: list[Alarm]):
+    def insert_new_alarms(self, alarm_objects: list[Alarm]):
         req = insert(self.alarms).values(
             [
                 {
                     'id': alarm.id,
                     'type': alarm.type,
-                    'date_time': alarm.date_time,
+                    'raising_time': alarm.raising_time,
                     'managed_object': alarm.managed_object,
                     'object_name': alarm.object_name,
                     'slogan': alarm.slogan,
                     'descr': alarm.descr,
                     'text': alarm.text,
                     'is_active': alarm.is_active
-                } for alarm in alarm_object
+                } for alarm in alarm_objects
             ]
         )
         conn = self.engine.connect()
         conn.execute(req)
 
-    def update_ceased_alarms(self, alarms_id: list[int]):
+    def update_ceased_alarms(self, alarm_objects: list[Alarm]):
         conn = self.engine.connect()
-        t = conn.begin()
-        for _id in alarms_id:
+        transaction = conn.begin()
+        for alarm in alarm_objects:
             upd = update(self.alarms).where(
-                self.alarms.c.id == _id
-            ).values({'is_active': False})
+                self.alarms.c.id == alarm.id
+            ).values({'is_active': False, 'ceasing_time': alarm.ceasing_time})
             conn.execute(upd)
-        t.commit()
+        transaction.commit()

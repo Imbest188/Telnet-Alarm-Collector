@@ -24,14 +24,14 @@ class Alarm:
         time_line, date_line = info_line[-1], info_line[-2]
         if len(time_line) == 4:
             time_line = time_line + '00'
-        self.date_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
+        self.raising_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
         self.descr = header_parts[-1]
 
     def __dict__(self):
         return {
             'id': self.id,
             'type': self.type,
-            'date_time': self.date_time,
+            'raising_time': self.raising_time,
             'managed_object': self.managed_object,
             'object_name': self.object_name,
             'slogan': self.slogan,
@@ -100,7 +100,8 @@ class Alarm:
 
     def __init__(self, alarm_text):
         self.type = ''
-        self.date_time = ''
+        self.raising_time = ''
+        self.ceasing_time = ''
         self.managed_object = ''
         self.object_name = ''
         self.slogan = ''
@@ -114,5 +115,5 @@ class Alarm:
         #    print(alarm_text)
 
     def __str__(self):
-        return f'type:{self.type} dt:{self.date_time} mo:{self.managed_object} name:{self.object_name}' \
+        return f'type:{self.type} dt:{self.raising_time} mo:{self.managed_object} name:{self.object_name}' \
                f' slogan:{self.slogan} desc:{self.descr}'
