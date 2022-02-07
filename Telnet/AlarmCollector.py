@@ -1,5 +1,5 @@
-from . import EricssonTelnet
-from . import EricssonNode
+from Telnet.EricssonNode import EricssonBsc, EricssonNode
+from Databases.DB import AlarmDatabase
 from threading import Thread
 
 import json
@@ -8,26 +8,33 @@ import json
 class AlarmCollector:
     def __init__(self):
         self.__nodes = dict()
+        self.__alarms = dict()
         self.__init_connections()
+        self.__start_listening()
 
     def get_nodes(self) -> list:
         return list(self.__nodes.keys())
 
-    def listening(self):
-        for node in self.__nodes:
-            print(node)
+    def __start_listening(self):
+        Thread(target=self.__listening, daemon=True).start()
 
-    def get_active_alarms(self, node_name) -> list:
-        if node_name in self.__nodes.keys():
+    def __listening(self):
+        while True:
+            for name in self.__nodes.keys():
+                new_alarms = self.__nodes[name].get_alarms()
+
+    def get_changes(self):
+        for node_name in self.__nodes.keys():
             pass
             #################self.__nodes[key].
 
     # may be async
     def add_node(self, host, login, password, name, node_type, override=True):
-        node = EricssonNode.EricssonBsc(host, login, password) if node_type == 'bsc' \
-            else EricssonTelnet.EricssonTelnet(host, login, password)
+        node = EricssonBsc(host, login, password) if node_type == 'bsc' \
+            else EricssonNode(host, login, password)
         if node.is_alive():
             self.__nodes[name] = node
+            self.__alarms[name] = []
             if override:
                 self.__save_connections()
             return True
@@ -51,7 +58,7 @@ class AlarmCollector:
         result = dict()
         for node in self.__nodes.keys():
             node_object = self.__nodes[node]
-            node_type = 'bsc' if type(node_object) == EricssonNode.EricssonBsc else 'node'
+            node_type = 'bsc' if type(node_object) == EricssonBsc else 'node'
             node_data = node_object.get_auth_data()
             node_data['type'] = node_type
             result[node] = node_data
