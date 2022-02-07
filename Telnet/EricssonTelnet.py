@@ -1,5 +1,4 @@
 import telnetlib
-from threading import Thread
 import time
 import socket
 
@@ -12,18 +11,15 @@ class EricssonTelnet:
     __is_busy = True
     __alarms = []
     __is_alive = False
+    __retries_counter = 0
 
     def __init__(self, ip, login, password):
-        self.__ip = ip
-        self.__login = login
-        self.__password = password
-        self.__connect()
-        self.__run_listening()
+        self.auth_with(ip, login, password)
 
     def get_auth_data(self) -> dict:
         return {'host': self.__ip, 'login': self.__login, 'pwd': self.__password}
 
-    def set_auth_data(self, ip, login, pwd):
+    def auth_with(self, ip, login, pwd):
         self.__ip = ip
         self.__login = login
         self.__password = pwd
@@ -65,6 +61,7 @@ class EricssonTelnet:
         return text.replace('\x04', '').replace('<', '').replace('\x03', '').strip()
 
     def get_alarms(self):
+        self.__listen()
         result = []
         for alarm in self.__alarms:
             if len(alarm) and alarm not in ['\x04', '<']:
@@ -73,26 +70,16 @@ class EricssonTelnet:
         self.__alarms.clear()
         return result
 
-    def __listening(self):
-        self.__telnet.read_very_eager()
-        seconds_counter = 0
-        while True:
-            time.sleep(1)
-            if self.__is_busy:
-                seconds_counter = 0
-            else:
-                try:
-                    channel_output = self.__telnet.read_very_eager().decode('ascii')
-                    seconds_counter += 1
-                    if seconds_counter > 100 or 'Timeout' in channel_output:
-                        seconds_counter = 0
-                        self.__heartbeat()
-                    self.__parse(channel_output)
-                except ConnectionError:
-                    self.__connect()
-
-    def __run_listening(self):
-        Thread(target=self.__listening, daemon=True).start()
+    def __listen(self):
+        try:
+            self.__retries_counter += 1
+            channel_output = self.__telnet.read_very_eager().decode('ascii')
+            if 'Timeout' in channel_output or self.__retries_counter >= 10:
+                self.__retries_counter = 0
+                self.__heartbeat()
+            self.__parse(channel_output)
+        except ConnectionError:
+            self.__connect()
 
     def __listen_mode(self):
         self.__telnet.write(b'\x04')
