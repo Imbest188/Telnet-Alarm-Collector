@@ -46,7 +46,7 @@ if __name__ == '__main__':
     '''
     a = AlarmCollector()
     #a.add_node('10.140.3.7', 'ts_user', 'apg43l2@', 'BSC04', 'bsc')
-    a.add_node('172.25.157.99', 'administrator', 'Administrator1@', 'BSC03', 'bsc')
+    #a.add_node('172.25.157.99', 'administrator', 'Administrator1@', 'BSC03', 'bsc')
     #a.add_node('10.140.27.68', 'ts_user', 'apg43l1@', 'BSC05', 'bsc')
 
     while True:
@@ -54,7 +54,10 @@ if __name__ == '__main__':
         changes = a.get_changes()
         print(changes)
         for node in changes.keys():
-            db.insert_new_alarms(changes[node])
+            new_alarms = [x for x in changes[node] if x.is_active]
+            ceased_alarms = [x for x in changes[node] if not x.is_active]
+            db.insert_new_alarms(new_alarms)
+            db.update_ceased_alarms(ceased_alarms)
         print('*' * 10)
 
 

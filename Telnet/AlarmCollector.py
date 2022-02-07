@@ -35,7 +35,7 @@ class AlarmCollector:
             new_dict[name] = []
         return new_dict
 
-    def get_changes(self):
+    def get_changes(self) -> dict[str: list]:
         self.__busy = True
         result = self.__alarms
         self.__alarms = self.__init_alarm_dict()
@@ -48,7 +48,8 @@ class AlarmCollector:
             else EricssonNode(host, login, password)
         if node.is_alive():
             self.__nodes[name] = node
-            self.__alarms[name] = []
+            #self.__alarms[name] = []
+            self.__alarms[name] = node.read_alarms()
             if override:
                 self.__save_connections()
             return True

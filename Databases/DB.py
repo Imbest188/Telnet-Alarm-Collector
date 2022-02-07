@@ -26,6 +26,8 @@ class AlarmDatabase:
         print(metadata.create_all(self.engine))
 
     def insert_new_alarms(self, alarm_objects: list[Alarm]):
+        if not len(alarm_objects):
+            return
         req = insert(self.alarms).values(
             [
                 {
@@ -45,6 +47,8 @@ class AlarmDatabase:
         conn.execute(req)
 
     def update_ceased_alarms(self, alarm_objects: list[Alarm]):
+        if not len(alarm_objects):
+            return
         conn = self.engine.connect()
         transaction = conn.begin()
         for alarm in alarm_objects:

@@ -7,11 +7,14 @@ class Alarm:
         self.is_active = False
 
     def __parse_id(self, header_line, header_parts) -> None:
-        if header_line.startswith('*'):
-            id_index = 3 if 'CEASING' in header_line else 2
-            self.id = int(header_parts[id_index])
-        else:
-            self.id = int(header_parts[-3])
+        try:
+            if header_line.startswith('*'):
+                id_index = 3 if 'CEASING' in header_line else 2
+                self.id = int(header_parts[id_index])
+            else:
+                self.id = int(header_parts[-3])
+        except ValueError:
+            self.id = -1
 
     def __parse_header(self, header_parts) -> None:
         type_identity = re.findall(r'[A|O][1-3]\/?\w{3}', header_parts[0])
