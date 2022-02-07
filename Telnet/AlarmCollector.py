@@ -1,6 +1,6 @@
 from . import EricssonTelnet
 from . import EricssonNode
-from . import AlarmParser
+from threading import Thread
 
 import json
 
@@ -12,6 +12,10 @@ class AlarmCollector:
 
     def get_nodes(self) -> list:
         return list(self.__nodes.keys())
+
+    def listening(self):
+        for node in self.__nodes:
+            print(node)
 
     def get_active_alarms(self, node_name) -> list:
         if node_name in self.__nodes.keys():
