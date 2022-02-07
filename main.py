@@ -45,11 +45,14 @@ if __name__ == '__main__':
                 db.update_ceased_alarms(ceased)
     '''
     a = AlarmCollector()
-    a.add_node('10.140.3.7', 'ts_user', 'apg43l2@', 'BSC04', 'bsc')
+    #a.add_node('10.140.3.7', 'ts_user', 'apg43l2@', 'BSC04', 'bsc')
     a.add_node('172.25.157.99', 'administrator', 'Administrator1@', 'BSC03', 'bsc')
-    a.add_node('10.140.27.68', 'ts_user', 'apg43l1@', 'BSC05', 'bsc')
+    #a.add_node('10.140.27.68', 'ts_user', 'apg43l1@', 'BSC05', 'bsc')
 
-    a.listening()
+    while True:
+        time.sleep(10)
+        print(a.get_changes())
+        print('*' * 10)
 
 
 
