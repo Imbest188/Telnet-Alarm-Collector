@@ -27,10 +27,10 @@ class Alarm:
         time_line, date_line = info_line[-1], info_line[-2]
         if len(time_line) == 4:
             time_line = time_line + '00'
-        if self.id == 0:
-            self.ceasing_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
-        else:
+        if self.is_active:
             self.raising_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
+        else:
+            self.ceasing_time = dt.strptime(f'{date_line} {time_line}', "%y%m%d %H%M%S")
         self.descr = header_parts[-1]
 
     def __dict__(self):
