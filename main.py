@@ -14,7 +14,7 @@ def print_alarm(alarm):
 
 if __name__ == '__main__':
 
-    #db = DB.AlarmDatabase()
+    db = DB.AlarmDatabase()
 
     #telnet = EricssonBsc('10.140.3.7', 'ts_user', 'apg43l2@')
     #for item in AlarmParser.parse_node_output(telnet.get('allip;')):
@@ -51,7 +51,10 @@ if __name__ == '__main__':
 
     while True:
         time.sleep(10)
-        print(a.get_changes())
+        changes = a.get_changes()
+        print(changes)
+        for node in changes.keys():
+            db.insert_new_alarms(changes[node])
         print('*' * 10)
 
 
