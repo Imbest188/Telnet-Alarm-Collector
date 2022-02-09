@@ -63,6 +63,13 @@ class EricssonBsc(EricssonNode):
                 return bs.name
         return ''
 
+    def parse_node_output(self, output_data) -> list:
+        result = super().parse_node_output(output_data)
+        for alarm in result:
+            if 'RBL' in alarm.managed_object:
+                alarm.object_name = self.getRblOwner(alarm.managed_object)
+        return result
+
     def __init_tg(self):
         tg_print = self.get('rxtcp:moty=rxotg;')
         for line in tg_print.split('\r\n'):
