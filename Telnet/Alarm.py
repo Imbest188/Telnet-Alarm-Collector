@@ -101,7 +101,7 @@ class Alarm:
             content_info = self.__get_values(lines_repr[2], lines_repr[3])
             self.__set_values(content_info)
 
-    def __init__(self, alarm_text):
+    def __init__(self, alarm_text: str, node_id: int):
         self.type = ''
         self.raising_time = ''
         self.ceasing_time = ''
@@ -113,6 +113,7 @@ class Alarm:
         self.id = 0
         self.is_active = True
         self.__parse_content(alarm_text)
+        self.node_id = node_id
 
     def __str__(self):
         return f'type:{self.type} dt:{self.raising_time} mo:{self.managed_object} name:{self.object_name}' \

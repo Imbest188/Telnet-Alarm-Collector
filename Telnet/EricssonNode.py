@@ -6,15 +6,19 @@ import re
 class EricssonNode(EricssonTelnet):
     def __init__(self, ip, login, password):
         super().__init__(ip, login, password)
+        self.id = -1
 
-    def read_alarms(self):
-        return self.parse_node_output(self.get('allip;'))
+    def __pack(self, alarms) -> dict:
+        return {'alarms': alarms, 'node_id': self.id}
 
-    def get_new_alarms(self) -> list[Alarm]:
+    def read_alarms(self) -> dict:
+        return self.__pack(self.parse_node_output(self.get('allip;')))
+
+    def get_new_alarms(self) -> dict:
         alarms = []
         for alarm_text in self.get_alarms():
             alarms += self.parse_node_output(alarm_text)
-        return alarms
+        return self.__pack(alarms)
 
     def parse_node_output(self, output_data) -> list:
         alarms = []
@@ -25,7 +29,7 @@ class EricssonNode(EricssonTelnet):
                 .replace('ALARM SLOGAN', 'ALARM_SLOGAN') \
                 .split('\n\n\n'):
             if re.findall(r'[A|O][1-3]', block):
-                alarms.append(Alarm(block.strip()))
+                alarms.append(Alarm(block.strip(), self.id))
         return alarms
 
 

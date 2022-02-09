@@ -7,11 +7,12 @@ class AlarmDatabase:
     def __init__(self):
         self.engine = create_engine('sqlite:///sqlite4.db')
         self.create_alarm_table()
-        self.clear_alarm_table()
+        self.clear_tables()
 
-    def clear_alarm_table(self):
+    def clear_tables(self):
         conn = self.engine.connect()
         conn.execute(delete(self.alarms))
+        conn.execute(delete(self.nodes))
 
     def create_alarm_table(self):
         metadata = MetaData()
@@ -75,7 +76,7 @@ class AlarmDatabase:
         upd = update(self.nodes).where(
             self.nodes.c.id == controller_id
         ).values(
-            {'update_id': self.nodes.c.update_id + 1 if self.nodes.c.update_id < 9 else 0}
+            {'update_id': self.nodes.c.update_id + 1}# if self.nodes.c.update_id < 9 else 0}
         )
         conn.execute(upd)
 
