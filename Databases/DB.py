@@ -1,6 +1,5 @@
-from sqlalchemy import create_engine, insert, update, delete
+from sqlalchemy import create_engine, insert, update, delete, select
 from sqlalchemy import MetaData, Table, String, Integer, Column, Text, DateTime, Boolean
-from sqlalchemy.orm import Session, sessionmaker
 from Telnet import Alarm
 
 
@@ -26,14 +25,21 @@ class AlarmDatabase:
                             Column('slogan', String(30)),
                             Column('descr', String(60)),
                             Column('text', String(300), nullable=False),
-                            Column('is_active', Boolean(), nullable=False)
+                            Column('is_active', Boolean(), nullable=False),
+                            Column('controller_id', Integer())
                             )
-        print(metadata.create_all(self.engine))
 
-    def insert_new_alarms(self, alarm_objects: list[Alarm]):
+        self.nodes = Table('nodes', metadata,
+                           Column('id', Integer(), autoincrement=True, primary_key=True),
+                           Column('name', String(20), nullable=False, unique=True),
+                           Column('update_id', Integer(), default=0)
+                           )
+        metadata.create_all(self.engine)
+
+    def insert_new_alarms(self, alarm_objects: list[Alarm], controller_id):
         if not len(alarm_objects):
             return
-        req = insert(self.alarms).values(
+        query = insert(self.alarms).values(
             [
                 {
                     'id': alarm.id,
@@ -44,12 +50,13 @@ class AlarmDatabase:
                     'slogan': alarm.slogan,
                     'descr': alarm.descr,
                     'text': alarm.text,
-                    'is_active': alarm.is_active
+                    'is_active': alarm.is_active,
+                    'controller_id': controller_id
                 } for alarm in alarm_objects
             ]
         )
         conn = self.engine.connect()
-        conn.execute(req)
+        conn.execute(query)
 
     def update_ceased_alarms(self, alarm_objects: list[Alarm]):
         if not len(alarm_objects):
@@ -62,3 +69,27 @@ class AlarmDatabase:
             ).values({'is_active': False, 'ceasing_time': alarm.ceasing_time})
             conn.execute(upd)
         transaction.commit()
+
+    def increase_update_id(self, controller):
+        conn = self.engine.connect()
+        upd = update(self.nodes).where(
+            self.nodes.c.name == controller
+        )
+        conn.execute(upd)
+
+    def add_node(self, node_name):
+        conn = self.engine.connect()
+        query = insert(self.nodes).values(
+            {
+                'name': node_name,
+                'update_id': 0
+            }
+        )
+        conn.execute(query)
+
+    def get_node_id(self, name) -> int:
+        conn = self.engine.connect()
+        query = select(self.nodes.c.id).where(
+            self.nodes.c.name == name
+        )
+        return conn.execute(query)
