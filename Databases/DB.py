@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, insert, update, delete, select
+from sqlalchemy import create_engine, insert, update, delete, select, exc
 from sqlalchemy import MetaData, Table, String, Integer, Column, Text, DateTime, Boolean
 from Telnet import Alarm
 
@@ -26,7 +26,7 @@ class AlarmDatabase:
                             Column('descr', String(60)),
                             Column('text', String(300), nullable=False),
                             Column('is_active', Boolean(), nullable=False),
-                            Column('controller_id', Integer())
+                            Column('node_id', Integer())
                             )
 
         self.nodes = Table('nodes', metadata,
@@ -36,7 +36,7 @@ class AlarmDatabase:
                            )
         metadata.create_all(self.engine)
 
-    def insert_new_alarms(self, alarm_objects: list[Alarm], controller_id):
+    def insert_new_alarms(self, alarm_objects: list[Alarm]):
         if not len(alarm_objects):
             return
         query = insert(self.alarms).values(
@@ -51,7 +51,7 @@ class AlarmDatabase:
                     'descr': alarm.descr,
                     'text': alarm.text,
                     'is_active': alarm.is_active,
-                    'controller_id': controller_id
+                    'node_id': alarm.node_id
                 } for alarm in alarm_objects
             ]
         )
@@ -70,10 +70,12 @@ class AlarmDatabase:
             conn.execute(upd)
         transaction.commit()
 
-    def increase_update_id(self, controller):
+    def increase_update_id(self, controller_id):
         conn = self.engine.connect()
         upd = update(self.nodes).where(
-            self.nodes.c.name == controller
+            self.nodes.c.id == controller_id
+        ).values(
+            {'update_id': self.nodes.c.update_id + 1 if self.nodes.c.update_id < 9 else 0}
         )
         conn.execute(upd)
 
@@ -85,11 +87,15 @@ class AlarmDatabase:
                 'update_id': 0
             }
         )
-        conn.execute(query)
+        try:
+            conn.execute(query)
+        except exc.IntegrityError:
+            pass
 
     def get_node_id(self, name) -> int:
         conn = self.engine.connect()
         query = select(self.nodes.c.id).where(
             self.nodes.c.name == name
         )
-        return conn.execute(query)
+        result = conn.execute(query).fetchone()
+        return result[0]
