@@ -113,3 +113,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/vcs.xml
+*.xml
+nodes.ini
+sqlite4.db
