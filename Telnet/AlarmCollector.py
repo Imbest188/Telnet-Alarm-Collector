@@ -10,8 +10,6 @@ import json
 class AlarmCollector:
     def __init__(self):
         self.__nodes = dict()
-        #remove
-        self.__alarms = dict()
         self.db = AlarmDatabase()
         self.__init_connections()
         self.__start_listening()
@@ -22,7 +20,6 @@ class AlarmCollector:
 
     def __start_listening(self):
         Thread(target=self.__listening, daemon=True).start()
-        #self.__listening()
 
     def __push_alarms(self, alarms):
         new_alarms = [x for x in alarms['alarms'] if x.is_active]
@@ -34,10 +31,8 @@ class AlarmCollector:
     def __listening(self):
         while True:
             time.sleep(5)
-            #if not self.__busy:
             for name in self.__nodes.keys():
                 new_alarms = self.__nodes[name].get_new_alarms()
-                #self.__alarms[name] += new_alarms
                 if len(new_alarms['alarms']):
                     self.__push_alarms(new_alarms)
 
@@ -47,21 +42,11 @@ class AlarmCollector:
             new_dict[name] = []
         return new_dict
 
-#remove
-    def get_changes(self) -> dict[str: list]:
-        self.__busy = True
-        result = self.__alarms
-        self.__alarms = self.__init_alarm_dict()
-        self.__busy = False
-        return result
-
-    # may be async
     def add_node(self, host, login, password, name, node_type, override=True):
         node = EricssonBsc(host, login, password) if node_type == 'bsc' \
             else EricssonNode(host, login, password)
         if node.is_alive():
             self.__nodes[name] = node
-            #self.__alarms[name] = node.read_alarms()
             self.db.add_node(name)
             self.__nodes[name].id = self.db.get_node_id(name)
             if override:
