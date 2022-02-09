@@ -5,7 +5,7 @@ from Telnet import Alarm
 
 class AlarmDatabase:
     def __init__(self):
-        self.engine = create_engine('sqlite:///sqlite4.db')
+        self.engine = create_engine('sqlite:///alarms.db')
         self.create_alarm_table()
         self.clear_tables()
 
