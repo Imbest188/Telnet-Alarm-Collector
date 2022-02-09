@@ -14,6 +14,7 @@ class AlarmCollector:
         self.__init_connections()
         self.__start_listening()
         self.__busy = False
+        self.db = AlarmDatabase()
 
     def get_nodes(self) -> list:
         return list(self.__nodes.keys())
@@ -50,6 +51,8 @@ class AlarmCollector:
             self.__nodes[name] = node
             #self.__alarms[name] = []
             self.__alarms[name] = node.read_alarms()
+            self.db.add_node(name)
+            print(self.db.get_node_id(name))
             if override:
                 self.__save_connections()
             return True
