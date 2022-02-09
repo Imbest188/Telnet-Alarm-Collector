@@ -14,7 +14,7 @@ def print_alarm(alarm):
 
 if __name__ == '__main__':
 
-    db = DB.AlarmDatabase()
+    #db = DB.AlarmDatabase()
 
     #telnet = EricssonBsc('10.140.3.7', 'ts_user', 'apg43l2@')
     #for item in AlarmParser.parse_node_output(telnet.get('allip;')):
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     #a.add_node('172.25.157.99', 'administrator', 'Administrator1@', 'BSC03', 'bsc')
     #a.add_node('10.140.27.68', 'ts_user', 'apg43l1@', 'BSC05', 'bsc')
 
-    while True:
+    '''while True:
         time.sleep(10)
         changes = a.get_changes()
         print(changes)
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             ceased_alarms = [x for x in changes[node] if not x.is_active]
             db.insert_new_alarms(new_alarms)
             db.update_ceased_alarms(ceased_alarms)
-        print('*' * 10)
+        print('*' * 10)'''
 
 
 
